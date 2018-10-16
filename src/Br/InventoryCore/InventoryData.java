@@ -32,6 +32,15 @@ public class InventoryData implements Serializable {
         this.ID = id;
         this.MaxRow = MaxRow;
     }
+    
+    public ItemStack geteItem(int slot){
+        String s = Contains[slot];
+        return s == null ? null : Tools.deserializeItemStack(s);
+    }
+    
+    public void update(int slot,ItemStack is){
+        Contains[slot] = is == null ? null : Tools.serializeItemStack(is);
+    }
 
     public Inventory toInventory(InventoryHolder p, String title) {
         Inventory inv = Bukkit.createInventory(p, MaxRow * 9, title);
