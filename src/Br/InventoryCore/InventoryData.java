@@ -32,6 +32,10 @@ public class InventoryData implements Serializable {
         this.ID = id;
         this.MaxRow = MaxRow;
     }
+
+    public int getMaxRow() {
+        return MaxRow;
+    }
     
     public ItemStack geteItem(int slot){
         String s = Contains[slot];

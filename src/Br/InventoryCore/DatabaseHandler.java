@@ -41,17 +41,17 @@ public class DatabaseHandler {
             CONN = DriverManager.getConnection(connect);
 
             Statement sta = CONN.createStatement();
-            sta.execute("CREATE TABLE IF NOT EXISTS InventoryCore(Key varchar(100), InvData MEDIUMBLOB, PRIMARY KEY(`Key`)) ENGINE = InnoDB DEFAULT CHARSET=utf8");
-            sta.execute("CREATE TABLE IF NOT EXISTS InvntoryCoreLock(Key varchar(100), Locked BOOLEAN , PRIMARY KEY(`Key`)) ENGINE = InnoDB DEFAULT CHARSET=utf8");
-            getInvData = CONN.prepareStatement("SELECT InvData FROM InventoryCore WHERE Key = ? LIMIT 1");
-            updateInvData = CONN.prepareStatement("UPDATE InventoryCore SET InvData = ? WHERE Key = ? LIMIT 1");
+            sta.execute("CREATE TABLE IF NOT EXISTS InventoryCore(UUID VARCHAR(100), InvData MEDIUMBLOB, PRIMARY KEY(`UUID`)) ENGINE = InnoDB DEFAULT CHARSET=utf8");
+            sta.execute("CREATE TABLE IF NOT EXISTS InvntoryCoreLock(UUID VARCHAR(100), Locked BOOLEAN , PRIMARY KEY(`UUID`)) ENGINE = InnoDB DEFAULT CHARSET=utf8");
+            getInvData = CONN.prepareStatement("SELECT InvData FROM InventoryCore WHERE UUID = ? LIMIT 1");
+            updateInvData = CONN.prepareStatement("UPDATE InventoryCore SET InvData = ? WHERE UUID = ? LIMIT 1");
             insertInvData = CONN.prepareStatement("INSERT INTO InventoryCore VALUES (?, ?)");
-            removeInvData = CONN.prepareStatement("DELETE FROM InventoryCore WHERE Key = ? LIMIT 1");
+            removeInvData = CONN.prepareStatement("DELETE FROM InventoryCore WHERE UUID = ? LIMIT 1");
             
-            isLocked = CONN.prepareStatement("SELECT Locked FROM InvntoryCoreLock WHERE Key = ? LIMIT 1");
-            lock = CONN.prepareStatement("UPDATE InvntoryCoreLock SET Locked = ? WHERE Key = ? LIMIT 1");
+            isLocked = CONN.prepareStatement("SELECT Locked FROM InvntoryCoreLock WHERE UUID = ? LIMIT 1");
+            lock = CONN.prepareStatement("UPDATE InvntoryCoreLock SET Locked = ? WHERE UUID = ? LIMIT 1");
             insertLock = CONN.prepareStatement("INSERT INTO InvntoryCoreLock VALUES (?, ?)");
-            removeLock = CONN.prepareStatement("DELETE FROM InvntoryCoreLock WHERE Key = ? LIMIT 1");
+            removeLock = CONN.prepareStatement("DELETE FROM InvntoryCoreLock WHERE UUID = ? LIMIT 1");
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
