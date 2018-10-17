@@ -7,6 +7,8 @@
 package Br.InventoryCore;
 
 import java.util.UUID;
+import java.util.function.Consumer;
+import org.bukkit.Bukkit;
 
 /**
  *
@@ -16,21 +18,29 @@ import java.util.UUID;
  */
 public class InvCore {
 
-    public static InventoryData createNewInventory(int rows) {
+    public static UUID createNewInventory(int rows, Consumer<InventoryData> after) {
         UUID uid = UUID.randomUUID();
-        InventoryData data = new InventoryData(uid, rows);
-        DatabaseHandler.insertInvData(uid.toString(), data);
-        return data;
+        Bukkit.getScheduler().runTaskAsynchronously(Main.Plugin, () -> {
+            InventoryData data = new InventoryData(uid, rows);
+            DatabaseHandler.insertInvData(uid.toString(), data);
+            if (after != null) {
+                Bukkit.getScheduler().runTask(Main.Plugin, () -> after.accept(data));
+            }
+        });
+        return uid;
     }
 
-    public static InventoryData getInventory(UUID uid, boolean lock) {
-        if (DatabaseHandler.isLocked(uid.toString())) {
-            return null;
-        }
-        if (lock) {
-            lock(uid, true);
-        }
-        return DatabaseHandler.getInvData(uid.toString());
+    public static void getInventory(UUID uid, boolean lock, Consumer<InventoryData> after) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.Plugin, () -> {
+            if (!DatabaseHandler.isLocked(uid.toString())) {
+                if (lock) {
+                    lock(uid, true);
+                }
+                Bukkit.getScheduler().runTask(Main.Plugin, () -> after.accept(DatabaseHandler.getInvData(uid.toString())));
+            } else {
+                Bukkit.getScheduler().runTask(Main.Plugin, () -> after.accept(null));
+            }
+        });
     }
 
     /**
@@ -39,22 +49,23 @@ public class InvCore {
      * @param unlock 是否解锁
      * @return 是否更新成功
      */
-    public static boolean update(InventoryData inv, boolean unlock) {
-        if(isLocked(inv.getID())){
-            return false;
-        }
-        DatabaseHandler.updateInvData(inv.getID().toString(), inv);
-        if (unlock) {
-            lock(inv.getID(), false);
-        }
-        return true;
+    public static void update(InventoryData inv, boolean unlock, boolean force) {
+        Bukkit.getScheduler().runTaskAsynchronously(Main.Plugin, () -> {
+            if (isLocked(inv.getID()) && !force) {
+                return;
+            }
+            DatabaseHandler.updateInvData(inv.getID().toString(), inv);
+            if (unlock) {
+                lock(inv.getID(), false);
+            }
+        });
     }
 
     public static void lock(UUID uid, boolean lock) {
         DatabaseHandler.lock(uid.toString(), lock);
     }
-    
-    public static boolean isLocked(UUID uid){
+
+    public static boolean isLocked(UUID uid) {
         return DatabaseHandler.isLocked(uid.toString());
     }
 

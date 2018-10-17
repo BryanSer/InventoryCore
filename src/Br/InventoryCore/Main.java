@@ -16,6 +16,13 @@ import org.bukkit.plugin.java.JavaPlugin;
  * @since 2018-10-15
  */
 public class Main extends JavaPlugin{
+    public static Main Plugin;
+
+    @Override
+    public void onEnable() {
+        Plugin = this;
+    }
+    
     
     
 }
