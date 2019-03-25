@@ -28,7 +28,7 @@ public class DatabaseHandler {
     private static PreparedStatement updateInvData;
     private static PreparedStatement insertInvData;
     private static PreparedStatement removeInvData;
-    
+
     private static PreparedStatement insertLock;
     private static PreparedStatement isLocked;
     private static PreparedStatement lock;
@@ -47,7 +47,7 @@ public class DatabaseHandler {
             updateInvData = CONN.prepareStatement("UPDATE InventoryCore SET InvData = ? WHERE UUID = ? LIMIT 1");
             insertInvData = CONN.prepareStatement("INSERT INTO InventoryCore VALUES (?, ?)");
             removeInvData = CONN.prepareStatement("DELETE FROM InventoryCore WHERE UUID = ? LIMIT 1");
-            
+
             isLocked = CONN.prepareStatement("SELECT Locked FROM InvntoryCoreLock WHERE UUID = ? LIMIT 1");
             lock = CONN.prepareStatement("UPDATE InvntoryCoreLock SET Locked = ? WHERE UUID = ? LIMIT 1");
             insertLock = CONN.prepareStatement("INSERT INTO InvntoryCoreLock VALUES (?, ?)");
@@ -56,8 +56,8 @@ public class DatabaseHandler {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static void lock(String key,boolean setto){
+
+    public static synchronized void lock(String key, boolean setto) {
         try {
             lock.setBoolean(1, setto);
             lock.setString(2, key);
@@ -65,14 +65,14 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
-    
-    public static boolean isLocked(String key){
+
+    public static synchronized boolean isLocked(String key) {
         try {
             isLocked.setString(1, key);
             ResultSet rs = isLocked.executeQuery();
-            if(rs.next()){
+            if (rs.next()) {
                 return rs.getBoolean(1);
             }
         } catch (SQLException ex) {
@@ -80,15 +80,15 @@ public class DatabaseHandler {
         }
         return false;
     }
-    
-    public static void removeInvData(String key){
+
+    public static synchronized void removeInvData(String key) {
         try {
             removeInvData.setString(1, key);
             removeInvData.execute();
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         try {
             removeLock.setString(1, key);
             removeLock.execute();
@@ -96,8 +96,8 @@ public class DatabaseHandler {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public static void insertInvData(String key,InventoryData data){
+
+    public static synchronized void insertInvData(String key, InventoryData data) {
         try {
             insertInvData.setString(1, key);
             insertInvData.setObject(2, data);
@@ -105,7 +105,7 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         try {
             insertLock.setString(1, key);
             insertLock.setBoolean(2, false);
@@ -114,9 +114,8 @@ public class DatabaseHandler {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    
-    public static void updateInvData(String key,InventoryData data){
+
+    public static synchronized void updateInvData(String key, InventoryData data) {
         try {
             updateInvData.setObject(1, data);
             updateInvData.setString(2, key);
@@ -124,10 +123,10 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger.getLogger(DatabaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
     }
 
-    public static boolean hasInvData(String key) {
+    public static synchronized boolean hasInvData(String key) {
         try {
             getInvData.setString(1, key);
             ResultSet rs = getInvData.executeQuery();
@@ -138,7 +137,7 @@ public class DatabaseHandler {
         return false;
     }
 
-    public static InventoryData getInvData(String key) {
+    public static synchronized InventoryData getInvData(String key) {
         try {
             getInvData.setString(1, key);
             ResultSet rs = getInvData.executeQuery();
