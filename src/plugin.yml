@@ -1,6 +1,6 @@
 name: InventoryCore
 author: Bryan_lzh
-main: Br.InventoryCore.Main
+main: com.github.bryanser.inventorycore.Main
 description: '开发者QQ:390807154'
 depend: [BrAPI]
 version: 1.0
